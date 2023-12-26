@@ -1,0 +1,15 @@
+cvpr_ckpts/
+cvpr_infer/
+det_ssub/
+det_sub/
+det_sub222/
+docs/
+lite/
+results/
+results_sub/
+runs/
+test_inference/
+tflite_inference/
+torch2tflite/
+weights/
+*.md

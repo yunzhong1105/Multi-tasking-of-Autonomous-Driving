@@ -1,0 +1,11 @@
+weight  epoch  batch_size  det_or_seg  freeze_backbone  parameters(Total Trainable Params)  detail
+exp4    500    8           seg         1              
+exp11   500    4           seg         0                88076820
+exp13   500    4           det         0                                                    cls-loss very small at epoch 5
+exp17   500    4           det         0                                                    try 1 gpu, cpu mode after epoch 32
+exp18   500    8           det         0                                                    img size 640, 1 gpu
+exp19   500    16          det         0                                                    img size 640, 1 gpu
+exp20   500    32          multi       0,1,2                                                img size 640, 2 gpu, train_multi.sh
+exp21   500    32          multi       0,1,2                                                img size 640, 2 gpu, train_multi.sh (1)
+exp43   500    8           det         0                                                    img size 640, 1 gpu, wandb , 50 epoch
+exp47   500    8           seg         0                                                    img size 640, 1 gpu, wandb , 50 epoch

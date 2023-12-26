@@ -1,0 +1,150 @@
+{
+    "os": "Linux-5.4.0-150-generic-x86_64-with-glibc2.17",
+    "python": "3.8.18",
+    "heartbeatAt": "2023-12-17T22:17:55.224046",
+    "startedAt": "2023-12-17T22:17:53.330708",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "--batch-size",
+        "8",
+        "--conf",
+        "configs/yolov6m6_finetune.py",
+        "--data",
+        "data/bdd100k_seg.yaml",
+        "--img",
+        "640",
+        "--segonly=True",
+        "--eval-final-only",
+        "--epochs",
+        "500",
+        "--freeze_backbone",
+        "0",
+        "--device=2"
+    ],
+    "state": "running",
+    "program": "tools/train.py",
+    "codePathLocal": "tools/train.py",
+    "codePath": "tools/train.py",
+    "host": "acvlab-System-Product-Name",
+    "username": "re6101029",
+    "executable": "/home/re6101029/miniconda3/envs/CVPR/bin/python",
+    "cpu_count": 8,
+    "cpu_count_logical": 16,
+    "cpu_freq": {
+        "current": 1585.5237500000003,
+        "min": 1200.0,
+        "max": 4425.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 1200.327,
+            "min": 1200.0,
+            "max": 4400.0
+        },
+        {
+            "current": 4257.192,
+            "min": 1200.0,
+            "max": 4500.0
+        },
+        {
+            "current": 1300.005,
+            "min": 1200.0,
+            "max": 4500.0
+        },
+        {
+            "current": 1200.144,
+            "min": 1200.0,
+            "max": 4400.0
+        },
+        {
+            "current": 1200.279,
+            "min": 1200.0,
+            "max": 4400.0
+        },
+        {
+            "current": 1200.35,
+            "min": 1200.0,
+            "max": 4400.0
+        },
+        {
+            "current": 1200.663,
+            "min": 1200.0,
+            "max": 4400.0
+        },
+        {
+            "current": 1200.007,
+            "min": 1200.0,
+            "max": 4400.0
+        },
+        {
+            "current": 1200.035,
+            "min": 1200.0,
+            "max": 4400.0
+        },
+        {
+            "current": 4105.053,
+            "min": 1200.0,
+            "max": 4500.0
+        },
+        {
+            "current": 1301.148,
+            "min": 1200.0,
+            "max": 4500.0
+        },
+        {
+            "current": 1201.205,
+            "min": 1200.0,
+            "max": 4400.0
+        },
+        {
+            "current": 1201.06,
+            "min": 1200.0,
+            "max": 4400.0
+        },
+        {
+            "current": 1199.999,
+            "min": 1200.0,
+            "max": 4400.0
+        },
+        {
+            "current": 1200.57,
+            "min": 1200.0,
+            "max": 4400.0
+        },
+        {
+            "current": 1200.343,
+            "min": 1200.0,
+            "max": 4400.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 1876.218734741211,
+            "used": 1677.8123397827148
+        }
+    },
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "gpu_count": 4,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce RTX 2080 Ti",
+            "memory_total": 11554717696
+        },
+        {
+            "name": "NVIDIA GeForce RTX 2080 Ti",
+            "memory_total": 11554717696
+        },
+        {
+            "name": "NVIDIA GeForce RTX 2080 Ti",
+            "memory_total": 11554717696
+        },
+        {
+            "name": "NVIDIA GeForce RTX 2080 Ti",
+            "memory_total": 11552096256
+        }
+    ],
+    "memory": {
+        "total": 125.4860954284668
+    }
+}

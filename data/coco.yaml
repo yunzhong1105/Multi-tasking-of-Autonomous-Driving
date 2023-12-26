@@ -1,0 +1,11 @@
+# COCO 2017 dataset http://cocodataset.org
+train: /work/u1657859/DCSNv2/ODSEG23/data/train/images # train images
+val: /work/u1657859/DCSNv2/ODSEG23/data/train/images # val images
+test: /work/u1657859/DCSNv2/ODSEG23/data/train/images # test images (optional)
+anno_path: /work/u1657859/DCSNv2/ODSEG23/data/train/labels/bbox_labels/bdd100k_labels_images_val.json
+
+# number of classes
+is_coco: False
+# Classes
+nc: 4  # number of classes
+names: ['vehicle', 'pedestrian', 'scooter', 'bicycle']

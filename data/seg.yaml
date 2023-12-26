@@ -1,0 +1,14 @@
+# Please insure that your custom_dataset are put in same parent dir with YOLOv6_DIR
+train: /work/u1657859/DCSNv2/ODSEG23/data/train/images # train images
+val: /work/u1657859/DCSNv2/ODSEG23/data/val/images # val images
+# test: /work/u1657859/DCSNv2/ODSEG23/data/test/images # test images (optional)
+# anno_path: /work/u1657859/DCSNv2/ODSEG23/data/train/labels/bbox_labels/bdd100k_labels_images_train.json
+
+# whether it is coco dataset, only coco dataset should be set to True.
+is_coco: False
+# Classes
+nc: 4  # number of classes
+names: ['vehicle', 'pedestrian', 'scooter', 'bicycle']
+
+
+  # class names

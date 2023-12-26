@@ -1,0 +1,11 @@
+# Please insure that your custom_dataset are put in same parent dir with YOLOv6_DIR
+train: /ssd5/CVPR2023comp/track1_train_data/seg_yolov6/train/images # /ssd3/CVPR2023comp/track1_train_data/seg/images/train # train images
+val: /ssd5/CVPR2023comp/track1_train_data/seg_yolov6/val/images # /ssd3/CVPR2023comp/track1_train_data/seg/images/val # val images
+# test: /work/u1657859/DCSNv2/ODSEG23/data/test/images # test images (optional)
+# anno_path: /ssd3/CVPR2023comp/track1_train_data/det_yolov6/annotations
+
+# whether it is coco dataset, only coco dataset should be set to True.
+is_coco: False
+# Classes
+nc: 20  # number of classes
+names: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "255"] # ['vehicle', 'pedestrian', 'scooter', 'bicycle']

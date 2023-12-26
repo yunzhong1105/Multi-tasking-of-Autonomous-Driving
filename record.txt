@@ -1,0 +1,1 @@
+{"date" : "0417" , "file" : "ckpts/teacher0324_18_12_last_ckpt_opset11.onnx" , "env" : "0417onnx2tf" , "package" : "onnx2tf" , "opset_version" : 11}
