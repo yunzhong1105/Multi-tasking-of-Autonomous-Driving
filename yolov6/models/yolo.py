@@ -72,6 +72,7 @@ def build_network(config, channels, num_classes, num_layers, fuse_ab=False, dist
     # print(block)
     # print("#"*80)
     # print(BACKBONE)
+    # print(type(BACKBONE))
     # print("#"*80)
     # print(NECK)
     # print("#"*80)
@@ -127,6 +128,7 @@ def build_network(config, channels, num_classes, num_layers, fuse_ab=False, dist
         head = Detect(num_classes, anchors_init, num_layers, head_layers=head_layers, use_dfl=use_dfl)
 
     else:
+        # here
         print('use effidet')
         from yolov6.models.effidehead import Detect, build_effidehead_layer
         head_layers = build_effidehead_layer(channels_list, 1, num_classes, reg_max=reg_max, num_layers=num_layers)
