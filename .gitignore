@@ -140,3 +140,4 @@ tflite_inference/
 torch2tflite/
 weights/
 *.md
+wandb/
