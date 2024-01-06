@@ -63,12 +63,22 @@ class TrainValDataset(Dataset):
         assert task.lower() in ("train", "val", "test", "speed"), f"Not supported task: {task}"
         t1 = time.time()
         
+        # for cls read label
+        self.data_dict = data_dict
+
         self.__dict__.update(locals())
         self.main_process = self.rank in (-1, 0)
         self.args = args
         self.task = self.task.capitalize()
         self.class_names = data_dict["names"]
         self.img_paths, self.labels = self.get_imgs_labels(self.img_dir)
+
+        # print("#"*80)
+        # print(self.img_paths[:50])
+        # print(self.labels[:50])
+        # print("#"*80)
+
+        # assert False
         # print(self.img_paths , self.labels , sep = "\n")
         # assert False
         if self.rect:
@@ -236,17 +246,30 @@ class TrainValDataset(Dataset):
             
             assert im is not None, f"opencv cannot read image correctly or {path} not exists"
         except:
+            # if self.args.detonly !='True':
+            #     im2 = cv2.imread(path3, 0)
             im = cv2.cvtColor(np.asarray(Image.open(path)), cv2.COLOR_RGB2BGR)
             if self.args.detonly !='True':
                 # im2 = cv2.cvtColor(np.asarray(Image.open(path2)), np.uint8)
                 im2 = cv2.cvtColor(np.asarray(Image.open(path3)), np.uint8)
             assert im is not None, f"Image Not Found {path}, workdir: {os.getcwd()}"
+        
+        # # for cls
+        try :
+            img = cv2.imread(path)
+        except :
+            img = cv2.cvtColor(np.asarray(Image.open(path)), cv2.COLOR_RGB2BGR)
+        h1, w1 = img.shape[:2]
 
         h0, w0 = im.shape[:2]  # origin shape
         if force_load_size:
             r = force_load_size / max(h0, w0)
         else:
             r = self.img_size / max(h0, w0)
+
+        if self.args.clsonly == "True" :
+            r = self.img_size / max(h1, w1)
+        
         if r != 1:
             im = cv2.resize(
                 im,
@@ -255,7 +278,7 @@ class TrainValDataset(Dataset):
                 if r < 1 and not self.augment
                 else cv2.INTER_LINEAR,
             )
-            if self.args.detonly !='True':
+            if self.args.segonly =='True':
                 im2 = cv2.resize(
                     im2,
                     (int(w0 * r), int(h0 * r)),
@@ -263,7 +286,15 @@ class TrainValDataset(Dataset):
                     if r < 1 and not self.augment
                     else cv2.INTER_NEAREST,
                 )
-        return im, im2, (h0, w0), im.shape[:2]
+            elif self.args.clsonly == "True" :
+                img = cv2.resize(
+                    img,
+                    (int(w1 * r), int(h1 * r)),
+                    interpolation=cv2.INTER_AREA
+                    if r < 1 and not self.augment
+                    else cv2.INTER_NEAREST,
+                )
+        return im, im2, img, (h0, w0), im.shape[:2] 
 
     @staticmethod
     def collate_fn(batch):
@@ -461,21 +492,52 @@ class TrainValDataset(Dataset):
         # print(dict(list(img_info.items())[0:1]))
         # print(img_paths[0] , labels[0] , sep = "\n")
         # assert False
-                
-        img_paths, labels = list(
-            zip(
-                *[
-                    (
-                        img_path,
-                        np.array(info["labels"], dtype=np.float32)
-                        if info["labels"] # & ("labels" in info.keys())
-                        else np.zeros((0, 5), dtype=np.float32),
-                    )
-                    for img_path, info in img_info.items()
-                ]
+        if self.args.clsonly != "True" :
+            img_paths, labels = list(
+                zip(
+                    *[
+                        (
+                            img_path,
+                            np.array(info["labels"], dtype=np.float32)
+                            if info["labels"] # & ("labels" in info.keys())
+                            else np.zeros((0, 5), dtype=np.float32),
+                        )
+                        for img_path, info in img_info.items()
+                    ]
+                )
             )
-        )
-        
+
+        # for img_path, info in img_info.items() :
+        #     print("#"*80)
+        #     print(img_path)
+        #     print(info)
+        #     try :
+        #         print(info["labels"])
+        #     except :
+        #         print("error")
+            
+        #     print("#"*80)
+        #     assert False
+            
+        else :
+            with open(os.path.join(os.path.dirname(self.data_dict["train"]) , "train.txt") , "r") as f :
+                cls_txt = f.readlines()
+                cls_txt_dict = dict()
+                for l in cls_txt :
+                    pic_lab = l.strip("\n").split("\t")
+                    cls_txt_dict[pic_lab[0]] = pic_lab[1]
+
+            img_paths, labels = list(
+                zip(
+                    *[
+                        (
+                            img_path, cls_txt_dict[os.path.basename(img_path)]
+                        )
+                        for img_path , _ in img_info.items()
+                    ]
+                )
+            )
+
         # print(dict(list(img_info.items())[0:1]))
         # print(img_paths[0] , labels[0] , sep = "\n")
         # assert False
@@ -493,8 +555,23 @@ class TrainValDataset(Dataset):
         )  # 3 additional image indices
         random.shuffle(indices)
         imgs, hs, ws, labels, seg = [], [], [], [], []
+
+        # print("#"*80)
+        # print(len(self.labels))
+        # print(self.img_paths)
+        # print("#"*80)
+        # assert False
+
         for index in indices:
-            img, im2, _, (h, w) = self.load_image(index)
+            img, im2, img, _, (h, w) = self.load_image(index)
+            # print("#"*80)
+            # print(type(img) , "|" , len(img))
+            # print(img)
+            # print("#"*80)
+            # print(type(im2) , "|" , len(im2))
+            # print(im2)
+            # print("#"*80)
+            # assert False
             if self.args.detonly == 'True': # det
                 labels_per_img = self.labels[index]
             if self.args.segonly == 'True': # seg
