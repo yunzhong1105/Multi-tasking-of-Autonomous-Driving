@@ -593,11 +593,11 @@ class Trainer:
         images = batch_data[0].to(device, non_blocking=True).float() / 255
         
         
-        if detonly!='True':
+        if segonly == 'True' :
             seg = batch_data[1].to(device, non_blocking=True).long()
         else:
             seg = None
-        if segonly !='True':
+        if detonly == 'True' :
             targets = batch_data[2].to(device)
         else:
             targets = None

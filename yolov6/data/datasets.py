@@ -73,14 +73,21 @@ class TrainValDataset(Dataset):
         self.class_names = data_dict["names"]
         self.img_paths, self.labels = self.get_imgs_labels(self.img_dir)
 
+        if self.args.clsonly == "True" :
+            self.augment = False
+
         # print("#"*80)
         # print(self.img_paths[:50])
         # print(self.labels[:50])
         # print("#"*80)
-
         # assert False
-        # print(self.img_paths , self.labels , sep = "\n")
+        
+        # check images & labels
+                
+        # for i in range(50) :
+        #     print(self.img_paths[i] , self.labels[i] , sep = "|")
         # assert False
+        
         if self.rect:
             shapes = [self.img_info[p]["shape"] for p in self.img_paths]
             self.shapes = np.array(shapes, dtype=np.float64)
@@ -141,7 +148,7 @@ class TrainValDataset(Dataset):
             shapes = (h0, w0), ((h * ratio / h0, w * ratio / w0), pad)  # for COCO mAP rescaling
 #             print('4',seg.max())
             labels = None
-            if self.args.segonly!='True':
+            if self.args.detonly == 'True' :
                 labels = self.labels[index].copy()
                 if labels.size:
                     w *= ratio
@@ -173,7 +180,7 @@ class TrainValDataset(Dataset):
                         new_shape=(self.img_size, self.img_size),
                     )
     #             print('5',seg.max())
-        if self.args.segonly!='True':
+        if self.args.detonly == 'True' :
             if len(labels):
                 h, w = img.shape[:2]
 
@@ -190,7 +197,7 @@ class TrainValDataset(Dataset):
         if self.augment:
             img, seg, labels = self.general_augment(img, seg, labels)
 #             print('6',seg.max())
-        if self.args.segonly != 'True':
+        if self.args.detonly == 'True':
             labels_out = torch.zeros((len(labels), 6))
             if len(labels):
                 labels_out[:, 1:] = torch.from_numpy(labels)
@@ -200,7 +207,7 @@ class TrainValDataset(Dataset):
         # Convert
         img = img.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
         img = np.ascontiguousarray(img)
-        if self.args.detonly!='True':
+        if self.args.segonly == 'True' :
             seg = np.ascontiguousarray(seg)
             seg = torch.from_numpy(seg)
             
@@ -238,7 +245,7 @@ class TrainValDataset(Dataset):
             im = cv2.imread(path)
             if im.shape[-1] !=3 or len(im.shape) !=3:
                 im = np.transpose(np.stack((im,im,im)), (1,2,0))
-            if self.args.detonly !='True':
+            if self.args.detonly != 'True':
                 # im2 = cv2.imread(path2, 0)
                 im2 = cv2.imread(path3, 0)
             # print(im2.shape)
@@ -254,12 +261,18 @@ class TrainValDataset(Dataset):
                 im2 = cv2.cvtColor(np.asarray(Image.open(path3)), np.uint8)
             assert im is not None, f"Image Not Found {path}, workdir: {os.getcwd()}"
         
-        # # for cls
-        try :
-            img = cv2.imread(path)
-        except :
-            img = cv2.cvtColor(np.asarray(Image.open(path)), cv2.COLOR_RGB2BGR)
-        h1, w1 = img.shape[:2]
+        # for cls
+        # same as im
+        # try :
+        #     img = cv2.imread(path)
+        # except :
+        #     img = cv2.cvtColor(np.asarray(Image.open(path)), cv2.COLOR_RGB2BGR)
+        # h1, w1 = img.shape[:2]
+        
+        # diff = cv2.subtract(im , img)
+        # result = not np.any(diff)
+        # print("result :" , result)
+        # assert False
 
         h0, w0 = im.shape[:2]  # origin shape
         if force_load_size:
@@ -267,8 +280,8 @@ class TrainValDataset(Dataset):
         else:
             r = self.img_size / max(h0, w0)
 
-        if self.args.clsonly == "True" :
-            r = self.img_size / max(h1, w1)
+        # if self.args.clsonly == "True" :
+        #     r = self.img_size / max(h1, w1)
         
         if r != 1:
             im = cv2.resize(
@@ -278,7 +291,7 @@ class TrainValDataset(Dataset):
                 if r < 1 and not self.augment
                 else cv2.INTER_LINEAR,
             )
-            if self.args.segonly =='True':
+            if self.args.segonly == 'True' :
                 im2 = cv2.resize(
                     im2,
                     (int(w0 * r), int(h0 * r)),
@@ -286,15 +299,15 @@ class TrainValDataset(Dataset):
                     if r < 1 and not self.augment
                     else cv2.INTER_NEAREST,
                 )
-            elif self.args.clsonly == "True" :
-                img = cv2.resize(
-                    img,
-                    (int(w1 * r), int(h1 * r)),
-                    interpolation=cv2.INTER_AREA
-                    if r < 1 and not self.augment
-                    else cv2.INTER_NEAREST,
-                )
-        return im, im2, img, (h0, w0), im.shape[:2] 
+            # elif self.args.clsonly == "True" :
+            #     img = cv2.resize(
+            #         img,
+            #         (int(w1 * r), int(h1 * r)),
+            #         interpolation=cv2.INTER_AREA
+            #         if r < 1 and not self.augment
+            #         else cv2.INTER_NEAREST,
+            #     )
+        return im, im2, (h0, w0), im.shape[:2] 
 
     @staticmethod
     def collate_fn(batch):
@@ -471,7 +484,11 @@ class TrainValDataset(Dataset):
                 LOGGER.warning(
                     f"WARNING: No labels found in {osp.dirname(img_paths[0])}. "
                 )
-
+        # print("#"*80)
+        # print(self.task.lower())
+        # print("#"*80)
+        # assert False
+        
         if self.task.lower() == "val":
             if self.data_dict.get("is_coco", False): # use original json file when evaluating on coco dataset.
                 assert osp.exists(self.data_dict["anno_path"]), "Eval on coco dataset must provide valid path of the annotation file in config file: data/coco.yaml"
@@ -520,13 +537,25 @@ class TrainValDataset(Dataset):
         #     assert False
             
         else :
-            with open(os.path.join(os.path.dirname(self.data_dict["train"]) , "train.txt") , "r") as f :
+            with open(os.path.join(os.path.dirname(self.data_dict[self.task.lower()]) , "{}.txt".format(self.task.lower())) , "r") as f :
                 cls_txt = f.readlines()
                 cls_txt_dict = dict()
                 for l in cls_txt :
                     pic_lab = l.strip("\n").split("\t")
                     cls_txt_dict[pic_lab[0]] = pic_lab[1]
 
+            
+            # a = cls_txt_dict.keys()
+            # b = [os.path.basename(img_path) for img_path , _ in img_info.items()]
+            # print(b)
+            # print(self.task.lower())
+            # print(type(a))
+            # print(type(b))
+            # print(len(a))
+            # print(len(b))
+            # print(list(a) == b)
+            # assert self.task.lower() == "train"
+            
             img_paths, labels = list(
                 zip(
                     *[
@@ -554,7 +583,7 @@ class TrainValDataset(Dataset):
             range(0, len(self.img_paths)), k=3
         )  # 3 additional image indices
         random.shuffle(indices)
-        imgs, hs, ws, labels, seg = [], [], [], [], []
+        imgs, hs, ws, labels, seg, cls = [], [], [], [], [], []
 
         # print("#"*80)
         # print(len(self.labels))
@@ -563,7 +592,7 @@ class TrainValDataset(Dataset):
         # assert False
 
         for index in indices:
-            img, im2, img, _, (h, w) = self.load_image(index)
+            img, im2, _, (h, w) = self.load_image(index)
             # print("#"*80)
             # print(type(img) , "|" , len(img))
             # print(img)
@@ -572,18 +601,21 @@ class TrainValDataset(Dataset):
             # print(im2)
             # print("#"*80)
             # assert False
-            if self.args.detonly == 'True': # det
+            if self.args.detonly == 'True' : # det
                 labels_per_img = self.labels[index]
-            if self.args.segonly == 'True': # seg
+            elif self.args.segonly == 'True' : # seg
                 seg.append(im2)
-            if self.args.clsonly == 'True' : # cls
+            elif self.args.clsonly == 'True' : # cls
+                # cls.append(cls_img)
                 assert False , "read data at dataset.py line 476"
             
+            # cv2.imwrite('output.jpg', im2)
+            # assert False
             
             imgs.append(img)
             hs.append(h)
             ws.append(w)
-            if self.args.segonly!='True':
+            if self.args.detonly == 'True':
                 labels.append(labels_per_img)
         img, seg, labels = mosaic_augmentation(self.img_size, imgs, seg, hs, ws, labels, self.hyp, self.args)
         return img, seg, labels
@@ -740,7 +772,10 @@ class TrainValDataset(Dataset):
         ann_id = 0
         LOGGER.info(f"Convert to COCO format")
         for i, (img_path, info) in enumerate(tqdm(img_info.items())):
-            labels = info["labels"] if info["labels"] else []
+            try :
+                labels = info["labels"]
+            except :
+                labels = []
             img_id = osp.splitext(osp.basename(img_path))[0]
             img_w, img_h = info["shape"]
             dataset["images"].append(

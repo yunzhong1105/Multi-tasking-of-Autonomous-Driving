@@ -170,13 +170,13 @@ def mosaic_augmentation(img_size, imgs, segs, hs, ws, labels, hyp, args):
     for i in range(len(imgs)):
         # Load image
         img, h, w = imgs[i], hs[i], ws[i]
-        if args.detonly!='True':
+        if args.segonly == 'True' :
             seg = segs[i]
             
         # place img in img4
         if i == 0:  # top left
             img4 = np.full((s * 2, s * 2, img.shape[2]), 114, dtype=np.uint8)  # base image with 4 tiles
-            if args.detonly!='True':
+            if args.segonly == 'True' :
                 img4s = np.full((s * 2, s * 2), 0, dtype=np.uint8)  # base image with 4 tiles
             x1a, y1a, x2a, y2a = max(xc - w, 0), max(yc - h, 0), xc, yc  # xmin, ymin, xmax, ymax (large image)
             x1b, y1b, x2b, y2b = w - (x2a - x1a), h - (y2a - y1a), w, h  # xmin, ymin, xmax, ymax (small image)
@@ -191,7 +191,7 @@ def mosaic_augmentation(img_size, imgs, segs, hs, ws, labels, hyp, args):
             x1b, y1b, x2b, y2b = 0, 0, min(w, x2a - x1a), min(y2a - y1a, h)
 
         img4[y1a:y2a, x1a:x2a] = img[y1b:y2b, x1b:x2b]  # img4[ymin:ymax, xmin:xmax]
-        if args.detonly!='True':
+        if args.segonly == 'True' :
             # print("#"*80)
             # print(img4s.shape)
             # print(img4s)
@@ -204,7 +204,7 @@ def mosaic_augmentation(img_size, imgs, segs, hs, ws, labels, hyp, args):
         padh = y1a - y1b
 
         # Labels
-        if args.segonly!='True':
+        if args.detonly == 'True' :
             labels_per_img = labels[i].copy()
             if labels_per_img.size:
                 boxes = np.copy(labels_per_img[:, 1:])
@@ -218,7 +218,7 @@ def mosaic_augmentation(img_size, imgs, segs, hs, ws, labels, hyp, args):
 
     # Concat/clip labels
     
-    if args.segonly!='True':
+    if args.detonly == 'True' :
         labels4 = np.concatenate(labels4, 0)
         for x in (labels4[:, 1:]):
             np.clip(x, 0, 2 * s, out=x)
