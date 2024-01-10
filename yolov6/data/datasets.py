@@ -110,6 +110,11 @@ class TrainValDataset(Dataset):
         This function applies mosaic and mixup augments during training.
         During validation, letterbox augment is applied.
         """
+
+        # random_value = random.random()
+
+        # print("here is the augmentation : " , self.augment , random_value < self.hyp["mosaic"])
+
         # Mosaic Augmentation
         if self.augment and random.random() < self.hyp["mosaic"]:
             img, seg, labels = self.get_mosaic(index)
@@ -127,12 +132,32 @@ class TrainValDataset(Dataset):
                 img, seg, labels = mixup(img, labels, img_other, labels_other, seg, seg_other, self.args)
 #                 print('2',seg.max())
         else:
+            # print("#"*80)
+            # print(self.hyp)
+            # print("test_load_size" in self.hyp)
+            # print("#"*80)
+
+            # assert False 
+
             # Load image
             if self.hyp and "test_load_size" in self.hyp:
                 img, seg, (h0, w0), (h, w) = self.load_image(index, self.hyp["test_load_size"])
-            else:
+            else: # cls here
                 img, seg, (h0, w0), (h, w) = self.load_image(index)
 #             print('3',seg.max())
+            
+            # print("#"*80)
+            # print(type(img) , "|" , img.shape)
+            # print(img)
+            # print("#"*80)
+            # # print(type(seg) , "|" , len(seg))
+            # print(seg)
+            # print(np.unique(seg))
+            # print("#"*80)
+            
+            # assert False
+                
+            # seg are the labels of segmentation
 
             # Letterbox
             shape = (
@@ -197,11 +222,16 @@ class TrainValDataset(Dataset):
         if self.augment:
             img, seg, labels = self.general_augment(img, seg, labels)
 #             print('6',seg.max())
-        if self.args.detonly == 'True':
+        if self.args.detonly == 'True' :
             labels_out = torch.zeros((len(labels), 6))
             if len(labels):
                 labels_out[:, 1:] = torch.from_numpy(labels)
-        else:
+        
+        # 
+        elif self.args.clsonly == "True" :
+            labels_out = self.labels[index]
+        
+        else :
             labels_out=None
 
         # Convert
@@ -313,7 +343,18 @@ class TrainValDataset(Dataset):
     def collate_fn(batch):
         """Merges a list of samples to form a mini-batch of Tensor(s)"""
         img, seg, label, path, shapes = zip(*batch)
-        if label[0] !=[] and label[0] is not None:
+
+        # print("="*80)
+        # print(label[0])
+        # print("="*80)
+        # print(label)
+        # print("="*80)
+        # print(path)
+        # print("="*80)
+
+        # assert False
+
+        if label[0] !=[] and label[0] is not None and len(label[0]) == 6 :
             for i, l in enumerate(label):
                 l[:, 0] = i  # add target image index for build_targets()
         

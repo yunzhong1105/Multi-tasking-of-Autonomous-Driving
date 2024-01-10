@@ -86,7 +86,7 @@ class ComputeLoss:
         # assert 1 == 2
 
 
-        if args.segonly !='True':
+        if args.detonly =='True':
             anchors, anchor_points, n_anchors_list, stride_tensor = \
                generate_anchors(feats, self.fpn_strides, self.grid_cell_size, self.grid_cell_offset, device=feats[0].device)
    
@@ -199,7 +199,7 @@ class ComputeLoss:
             loss_iou, loss_dfl = self.bbox_loss(pred_distri, pred_bboxes, anchor_points_s, target_bboxes,
                                                 target_scores, target_scores_sum, fg_mask)
         
-        if args.detonly !='True':
+        if args.segonly =='True':
             # print("segmap :" , segmap.shape)
             segmap = F.interpolate(segmap, size=(seg_gt.shape[1:]))
             # print("segmap :" , segmap.shape)
@@ -209,12 +209,12 @@ class ComputeLoss:
             # print("segmap :" , segmap.shape)
             # assert 1 == 2
         
-        if args.segonly != 'True' and args.detonly != 'True':
+        if args.detonly == 'True' and args.segonly == 'True':
             loss = self.loss_weight['class'] * loss_cls + \
                    self.loss_weight['iou'] * loss_iou + \
                    self.loss_weight['dfl'] * loss_dfl + lossseg
             
-        elif args.detonly != 'True':
+        elif args.segonly == 'True':
             loss = lossseg
             device_id = lossseg.get_device()
             # print("device_id : " , device_id)
@@ -225,7 +225,7 @@ class ComputeLoss:
             # loss_cls, loss_iou, loss_dfl = torch.zeros((lossseg.shape)).to("cpu"),torch.zeros((lossseg.shape)).to("cpu"),torch.zeros((lossseg.shape)).to("cpu")
             loss_cls, loss_iou, loss_dfl = torch.zeros((lossseg.shape)).to(device_id),torch.zeros((lossseg.shape)).to(device_id),torch.zeros((lossseg.shape)).to(device_id)
             
-        elif args.segonly!='True':
+        elif args.detonly == 'True':
             loss = self.loss_weight['class'] * loss_cls + \
                    self.loss_weight['iou'] * loss_iou + \
                    self.loss_weight['dfl'] * loss_dfl

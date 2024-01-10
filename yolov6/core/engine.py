@@ -146,6 +146,19 @@ class Trainer:
         # assert 1 == 2
         self.num_classes = self.data_dict['nc']
         self.train_loader, self.val_loader = self.get_data_loader(args, cfg, self.data_dict)
+
+        # print("#"*80)
+        # # print(type(self.train_loader))
+        # for step , data in enumerate(self.train_loader) :
+        #     print(len(data))
+        #     for d in data :
+        #         print(type(d) , "|" , len(d))
+        #         print(d)
+        #         print("#"*80)
+        #     assert False
+        # print("#"*80)
+        # assert False
+
         # get model and optimizer
         self.distill_ns = True if self.args.distill and self.cfg.model.type in ['YOLOv6n','YOLOv6s'] else False
         # print("before get model : \n" , self.distill_ns)
@@ -613,7 +626,7 @@ class Trainer:
             LOGGER.info(f'Loading state_dict from {weights} for fine-tuning...')
             model = load_state_dict(weights, model, map_location=device)
 
-        LOGGER.info('Model: {}'.format(model))
+        # LOGGER.info('Model: {}'.format(model)) # print model structure
         return model
 
     def get_teacher_model(self, args, cfg, nc, device):
