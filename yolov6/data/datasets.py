@@ -235,7 +235,7 @@ class TrainValDataset(Dataset):
             seg = None
         
         else :
-            labels_out=None
+            labels_out = None
 
         # Convert
         img = img.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
