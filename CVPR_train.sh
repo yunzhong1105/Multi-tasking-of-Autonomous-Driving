@@ -22,17 +22,22 @@ python -m torch.distributed.launch --nproc_per_node 2 tools/train.py --batch-siz
 # img size 640
 
 # new det training
-python -m torch.distributed.launch --nproc_per_node 2 tools/train.py --batch-size 32 --conf configs/yolov6m6_finetune.py --data data/TT_100K_det.yaml --img 640 --device 0,1 --detonly=True --eval-final-only --epochs 500 --freeze_backbone 0
+python -m torch.distributed.launch --nproc_per_node 2 tools/train.py --batch-size 16 --conf configs/yolov6m6_finetune.py --data data/TT_100K_det.yaml --img 640 --device 0,1 --detonly=True --eval-final-only --epochs 500 --freeze_backbone 0
 
 # resume det training
-python -m torch.distributed.launch --nproc_per_node 2 tools/train.py --batch-size 32 --conf configs/yolov6m6_finetune.py --data data/TT_100K_det.yaml --img 640 --device 0,1 --resume "runs/train/exp/weights/last_ckpt.pt" --detonly=True --eval-final-only --epochs 500 --freeze_backbone 0
+python -m torch.distributed.launch --nproc_per_node 2 tools/train.py --batch-size 16 --conf configs/yolov6m6_finetune.py --data data/TT_100K_det.yaml --img 640 --device 0,1 --resume "runs/train/exp/weights/last_ckpt.pt" --detonly=True --eval-final-only --epochs 500 --freeze_backbone 0
 
 # new seg training
-python -m torch.distributed.launch --nproc_per_node 2 tools/train.py --batch-size 32 --conf configs/yolov6m6_finetune.py --data data/bdd100k_seg.yaml --img 640 --device 0,1 --segonly=True --eval-final-only --epochs 500 --freeze_backbone 0
+python -m torch.distributed.launch --nproc_per_node 2 tools/train.py --batch-size 16 --conf configs/yolov6m6_finetune.py --data data/bdd100k_seg.yaml --img 640 --device 0,1 --segonly=True --eval-final-only --epochs 500 --freeze_backbone 0
 
 # resume seg training
-python -m torch.distributed.launch --nproc_per_node 2 tools/train.py --batch-size 32 --conf configs/yolov6m6_finetune.py --data data/bdd100k_seg.yaml --img 640 --device 0,1 --resume "runs/train/exp/weights/last_ckpt.pt" --segonly=True --eval-final-only --epochs 500 --freeze_backbone 0
+python -m torch.distributed.launch --nproc_per_node 2 tools/train.py --batch-size 16 --conf configs/yolov6m6_finetune.py --data data/bdd100k_seg.yaml --img 640 --device 0,1 --resume "runs/train/exp/weights/last_ckpt.pt" --segonly=True --eval-final-only --epochs 500 --freeze_backbone 0
 
+# new cls training
+python -m torch.distributed.launch --nproc_per_node 2 tools/train.py --batch-size 16 --conf configs/yolov6m6_finetune.py --data data/stanfordcar_cls.yaml --img 640 --device 0,1 --clsonly=True --eval-final-only --epochs 500 --freeze_backbone 0
+
+# resume cls training
+python -m torch.distributed.launch --nproc_per_node 2 tools/train.py --batch-size 16 --conf configs/yolov6m6_finetune.py --data data/stanfordcar_cls.yaml --img 640 --device 0,1 --resume "runs/train/exp/weights/last_ckpt.pt" --clsonly=True --eval-final-only --epochs 500 --freeze_backbone 0
 
 
 

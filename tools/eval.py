@@ -34,6 +34,7 @@ def get_args_parser(add_help=True):
     parser.add_argument('--device', default='0', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--segonly', type=str,default="False", help='resume the most recent training')
     parser.add_argument('--detonly', type=str,default="False", help='resume the most recent training')
+    parser.add_argument('--clsonly', type=str,default="False", help='resume the most recent training')
     parser.add_argument('--half', default=False, action='store_true', help='whether to use fp16 infer')
     parser.add_argument('--save_dir', type=str, default='runs/val/', help='evaluation save dir')
     parser.add_argument('--name', type=str, default='exp', help='save evaluation results to save_dir/name')
@@ -124,6 +125,7 @@ def run(data,
         config_file=None,
         segonly='False',
         detonly='False',
+        clsonly="False",
         ):
     """ Run the evaluation process
 
@@ -162,9 +164,22 @@ def run(data,
 
     # eval
     model.eval()
-    pred_result, vis_outputs, vis_paths = val.predict_model(model, dataloader, task)
-    eval_result = val.eval_model(pred_result, model, dataloader, task)
-    return eval_result, vis_outputs, vis_paths
+    pred_result, vis_outputs, vis_paths, prof = val.predict_model(model, dataloader, task) # prof is for torch profiler
+    # eval_result = val.eval_model(pred_result, model, dataloader, task) # close when using torch profiler
+    # return eval_result, vis_outputs, vis_paths # close when using torch profiler
+
+    # This part is for torch profiler
+    print(prof.key_averages(
+        group_by_input_shape=True
+    ).table(
+        sort_by="self_cuda_time_total", 
+        row_limit=40,
+        max_src_column_width=75,
+        max_name_column_width=80,
+        max_shapes_column_width=80,
+        header=None,
+        top_level_events_only=False,
+    ))
 
 
 def main(args):

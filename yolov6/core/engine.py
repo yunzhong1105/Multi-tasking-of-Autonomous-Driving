@@ -307,20 +307,35 @@ class Trainer:
     # Training loop for batchdata
     def train_in_steps(self, epoch_num, step_num):
         
+        # for examining the self.batch_data detail
+        # print(type(self.batch_data))
+        # for ind , i in enumerate(self.batch_data) :
+        #     print("================================================")
+        #     print(type(i))
+        #     print(len(i))
+        #     if clsonly == "True" :
+        #         if torch.is_tensor(i) :
+        #             print(i.shape)
+        #     print(i)
+        #     print("index :" , ind)
+        #     print("")
+        # print("################################### end ###################################")
+        # assert False
+        
         images, seg, targets = self.prepro_data(self.batch_data, self.device)
         
         # print("#"*80)
         # print("images : " , type(images) , images.shape)
         # print(images)
         # print("#"*80)
-        # # print("seg : " , type(seg) , seg.shape)
-        # # print(seg)
-        # # print("#"*80)
+        # print("seg : " , type(seg) , seg.shape)
+        # print(seg)
+        # print("#"*80)
         # print("targets : " , targets.shape)
         # print(targets)
         # print("#"*80)
         
-        # assert 1 == 2
+        # assert False
 
         if images.shape[0]<=1:
             pass
@@ -352,6 +367,13 @@ class Trainer:
                     # print("targets : " , targets.shape)
                     # print(targets)
                     # assert 1 == 2
+                    
+                    # print(type(preds))
+                    # print(type(seg))
+                    # print(type(targets))
+                    
+                    # assert False
+                    
                     total_loss, loss_items = self.compute_loss(preds, seg, targets, epoch_num, step_num, self.args) # YOLOv6_af
                 if self.rank != -1:
                     total_loss *= self.world_size
@@ -605,12 +627,16 @@ class Trainer:
         global detonly, segonly, clsonly
         images = batch_data[0].to(device, non_blocking=True).float() / 255
         
+        # batch_data -> img , seg , label_out , img_path , shapes
+        # det         |  O  |  X  |     O     |    O    |    X    |
+        # seg         |  O  |  O  |     X     |    O    |    X    |
+        # cls         |  O  |  X  |     O     |    O    |    O    |
         
         if segonly == 'True' :
             seg = batch_data[1].to(device, non_blocking=True).long()
         else:
             seg = None
-        if detonly == 'True' :
+        if detonly == 'True' or clsonly == "True" : # det & cls  
             targets = batch_data[2].to(device)
         else:
             targets = None

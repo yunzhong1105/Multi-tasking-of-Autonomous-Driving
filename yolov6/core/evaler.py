@@ -20,6 +20,8 @@ from yolov6.utils.checkpoint import load_checkpoint
 from yolov6.utils.torch_utils import time_sync, get_model_info
 import warnings
 
+from torch.profiler import profile, record_function, schedule, ProfilerActivity
+
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 '''
 python tools/eval.py --task 'train'/'val'/'speed'
@@ -178,6 +180,28 @@ class Evaler:
         vis_paths = None
         # whether to compute metric and plot PR curve and P、R、F1 curve under iou50 match rule
         miou1 = []
+
+
+        # add pytorch profiler
+        with profile(
+            activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], 
+            schedule=schedule(wait=1, warmup=1, active=3, repeat=1),
+            record_shapes=True,
+            with_stack=True,
+            with_flops=True,
+            with_modules=True,
+        ) as prof:
+            for i, (imgs, targets, _, paths, shapes) in enumerate(pbar): 
+                # print("#"*80)
+                # print(len(j))
+                # print(j)
+                # print("#"*80)
+
+                # assert False
+                prof.step()
+
+
+
         if self.do_pr_metric:
             stats, ap = [], []
             seen = 0
@@ -185,7 +209,7 @@ class Evaler:
             niou = iouv.numel()
             if self.plot_confusion_matrix:
                 from yolov6.utils.metrics import ConfusionMatrix
-                confusion_matrix = ConfusionMatrix(nc=model.nc)
+                confusion_matrix = ConfusionMatrix(nc=model.nc) 
 
         for i, (imgs, segs, targets, paths, shapes) in enumerate(pbar):
 
@@ -194,7 +218,7 @@ class Evaler:
             imgs = imgs.to(self.device, non_blocking=True)
             imgs = imgs.half() if self.half else imgs.float()
             imgs /= 255
-            if self.args.detonly != 'True':
+            if self.args.segonly == 'True':
                 segs = segs.to(self.device, non_blocking=True)
                 
             self.speed_result[1] += time_sync() - t1  # pre-process time
@@ -206,7 +230,7 @@ class Evaler:
             outputs, _ = model(imgs)
             segmap = outputs[1]
             outputs = outputs[0]
-            if self.args.detonly != 'True':
+            if self.args.segonly == 'True':
                 segmap = F.interpolate(segmap, size=(segs.shape[1:]), mode='bilinear')
             
                 m1=0
@@ -331,13 +355,13 @@ class Evaler:
                 LOGGER.info("Calculate metric failed, might check dataset.")
                 self.pr_metric_result = (0.0, 0.0)
 
-        if self.args.detonly != 'True':
+        if self.args.segonly == 'True':
             print('#'*80)
     #         miou1 /= len1
             print('mIOU=', np.mean(np.array(miou1)))
             print('#'*80)
         
-        return pred_results, vis_outputs, vis_paths
+        return pred_results, vis_outputs, vis_paths, prof # prof is for torch profiler
 
 
     def eval_model(self, pred_results, model, dataloader, task):

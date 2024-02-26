@@ -162,6 +162,9 @@ def main(args):
     if args.quant and args.calib:
         trainer.calibrate(cfg)
         return
+    # print(type(args.segonly) , "|" , args.segonly)
+    # print(type(args.detonly) , "|" , args.detonly)
+    # print(type(args.clsonly) , "|" , args.clsonly)
     trainer.train()
 
     # End

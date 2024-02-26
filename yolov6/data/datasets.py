@@ -229,7 +229,10 @@ class TrainValDataset(Dataset):
         
         # 
         elif self.args.clsonly == "True" :
-            labels_out = self.labels[index]
+            # print(self.labels[index])
+            # labels_out = torch.tensor(int(self.labels[index]) , dtype = torch.int8)
+            labels_out = torch.tensor(int(self.labels[index]))
+            seg = None
         
         else :
             labels_out=None
@@ -275,7 +278,7 @@ class TrainValDataset(Dataset):
             im = cv2.imread(path)
             if im.shape[-1] !=3 or len(im.shape) !=3:
                 im = np.transpose(np.stack((im,im,im)), (1,2,0))
-            if self.args.detonly != 'True':
+            if self.args.segonly == 'True':
                 # im2 = cv2.imread(path2, 0)
                 im2 = cv2.imread(path3, 0)
             # print(im2.shape)
@@ -286,7 +289,7 @@ class TrainValDataset(Dataset):
             # if self.args.detonly !='True':
             #     im2 = cv2.imread(path3, 0)
             im = cv2.cvtColor(np.asarray(Image.open(path)), cv2.COLOR_RGB2BGR)
-            if self.args.detonly !='True':
+            if self.args.segonly =='True':
                 # im2 = cv2.cvtColor(np.asarray(Image.open(path2)), np.uint8)
                 im2 = cv2.cvtColor(np.asarray(Image.open(path3)), np.uint8)
             assert im is not None, f"Image Not Found {path}, workdir: {os.getcwd()}"
@@ -345,26 +348,64 @@ class TrainValDataset(Dataset):
         img, seg, label, path, shapes = zip(*batch)
 
         # print("="*80)
+        # print(len(label) , "|" , len(label[0]) == 6)
+        # print("="*80)
+        # print(label[0] !=[] , "|" , label[0] is not None)
+        # print("="*80)
         # print(label[0])
         # print("="*80)
         # print(label)
         # print("="*80)
-        # print(path)
+
+        # print("="*80)
+        # print(seg[0]!=[] and seg[0] is not None)
+        # if seg[0]!=[] and seg[0] is not None :
+        # print(seg)
+        # print("="*80)
+        # print("="*80 , "top" , "="*80)
+        # print(type(label) , "|" , len(label) , "|" , type(label[0]) , "|" , label[0].shape , "|" , len(label[0].shape))
+        # print(type(label) , "|" , len(label) , "|" , type(label[0]) , "|" , label[0].shape)
+        # print(label)
         # print("="*80)
 
         # assert False
 
-        if label[0] !=[] and label[0] is not None and len(label[0]) == 6 :
+        # det
+        if label[0] != [] and label[0] is not None and len(label[0].shape) == 2 :
             for i, l in enumerate(label):
                 l[:, 0] = i  # add target image index for build_targets()
+        # cls
+        elif label[0] != [] and label[0] is not None :
+            label = torch.stack(label , 0)
+            # print("det doesn't go here")
+        
+        # cls
+        # elif label[0] is not None :
+
         
         img = torch.stack(img, 0)
         
+        # evaluation needs to close this part
         if seg[0]!=[] and seg[0] is not None:
             seg = torch.stack(seg, 0)
-        if label[0] !=[] and label[0] is not None:
-            label = torch.cat(label, 0)
         
+        # print("="*80 , "top" , "="*80)
+        # print(type(label) , "|" , len(label))
+        # print(label)
+        # print("="*80)
+
+        # det
+        if label[0] !=[] and label[0] is not None and len(label[0].shape) == 2 :
+            label = torch.cat(label, 0)
+            # print("after cat")
+        
+        # print("="*80)
+        # print(type(label) , "|" , len(label))
+        # print(label)
+        # print("="*80 , "bottom" , "="*80)
+
+        # assert False
+
         return img, seg, label, path, shapes
 
     def get_imgs_labels(self, img_dir):

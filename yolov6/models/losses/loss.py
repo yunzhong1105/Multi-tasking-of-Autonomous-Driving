@@ -48,6 +48,8 @@ class ComputeLoss:
         self.loss_weight = loss_weight       
         self.celoss = nn.CrossEntropyLoss()
         
+        self.cls_celoss = nn.CrossEntropyLoss()
+        
     def __call__(
         self,
         outputs,
@@ -199,7 +201,7 @@ class ComputeLoss:
             loss_iou, loss_dfl = self.bbox_loss(pred_distri, pred_bboxes, anchor_points_s, target_bboxes,
                                                 target_scores, target_scores_sum, fg_mask)
         
-        if args.segonly =='True':
+        if args.segonly == 'True' :
             # print("segmap :" , segmap.shape)
             segmap = F.interpolate(segmap, size=(seg_gt.shape[1:]))
             # print("segmap :" , segmap.shape)
@@ -231,6 +233,13 @@ class ComputeLoss:
                    self.loss_weight['dfl'] * loss_dfl
             device_id = loss_dfl.get_device()
             lossseg = torch.zeros((loss_cls.shape)).to(device_id)
+
+        elif args.clsonly == 'True' :
+            # cls_pred = 
+            losscls = self.cls_celoss("pred" , "gt")
+            loss_cls, loss_iou, loss_dfl = torch.zeros((losscls.shape)).to(device_id),torch.zeros((losscls.shape)).to(device_id),torch.zeros((losscls.shape)).to(device_id)
+            pass
+
        
         ret_loss = torch.cat(((self.loss_weight['iou'] * loss_iou).unsqueeze(0), 
                          (self.loss_weight['dfl'] * loss_dfl).unsqueeze(0),

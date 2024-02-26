@@ -7,6 +7,7 @@ from yolov6.assigners.anchor_generator import generate_anchors
 from yolov6.utils.general import dist2bbox
 from yolov6.models.seghead import BasicBlock, Bottleneck, segmenthead, DAPPM, PAPPM, PagFM, Bag, Light_Bag
 
+from yolov6.models.clshead import ClassificationHead
 
 class Detect(nn.Module):
     '''Efficient Decoupled Head
@@ -92,7 +93,7 @@ class Detect(nn.Module):
                 elif i==2:
                     x1 = x1 + F.interpolate(self.spp2(x[i]), scale_factor=2, mode='bilinear',align_corners=True)
                 elif i==3:
-                    x1 = x1 +  F.interpolate(self.spp3(x[i]), scale_factor=4, mode='bilinear',align_corners=True)
+                    x1 = x1 + F.interpolate(self.spp3(x[i]), scale_factor=4, mode='bilinear',align_corners=True)
                     
                 x[i] = self.stems[i](x[i])
 #                 print(x[i].shape)
