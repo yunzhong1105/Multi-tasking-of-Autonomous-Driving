@@ -245,6 +245,9 @@ class PAPPM(nn.Module):
         width = x.shape[-1]
         height = x.shape[-2]        
         scale_list = []
+        
+        # print(type(x))
+        # assert False
 
         x_ = self.scale0(x)
         scale_list.append(F.interpolate(self.scale1(x), size=[height, width],

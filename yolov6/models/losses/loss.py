@@ -238,7 +238,7 @@ class ComputeLoss:
             # cls_pred = 
             losscls = self.cls_celoss("pred" , "gt")
             loss_cls, loss_iou, loss_dfl = torch.zeros((losscls.shape)).to(device_id),torch.zeros((losscls.shape)).to(device_id),torch.zeros((losscls.shape)).to(device_id)
-            pass
+            # pass
 
        
         ret_loss = torch.cat(((self.loss_weight['iou'] * loss_iou).unsqueeze(0), 

@@ -326,7 +326,7 @@ class Trainer:
         
         # print("#"*80)
         # print("images : " , type(images) , images.shape)
-        # print(images)
+        # print(np.unique(images[0].cpu().detach().numpy()))
         # print("#"*80)
         # print("seg : " , type(seg) , seg.shape)
         # print(seg)
@@ -348,6 +348,18 @@ class Trainer:
 
             # forward
             with amp.autocast(enabled=self.device != 'cpu'):
+                
+                # print("===================== before model =====================")
+                # print(type(images))
+                # print(images.shape)
+                # print(images[0].shape)
+                # print(images[0])
+                # print(x[0])
+                # print(x[1])
+                # print("===================== before model =====================")
+                
+                # assert False
+                
                 preds, s_featmaps = self.model(images)
                 if self.args.distill: # not here
                     with torch.no_grad():
@@ -631,6 +643,14 @@ class Trainer:
         # det         |  O  |  X  |     O     |    O    |    X    |
         # seg         |  O  |  O  |     X     |    O    |    X    |
         # cls         |  O  |  X  |     O     |    O    |    O    |
+        
+        # print("#"*80)
+        # print("images : " , type(images) , images.shape)
+        # print(images)
+        # print("#"*80)
+        
+        # assert False
+        
         
         if segonly == 'True' :
             seg = batch_data[1].to(device, non_blocking=True).long()

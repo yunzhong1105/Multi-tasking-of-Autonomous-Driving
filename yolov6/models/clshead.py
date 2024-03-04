@@ -1,4 +1,5 @@
 import torch.nn as nn
+import numpy as np
 
 class ClassificationHead(nn.Module):
     def __init__(self, in_features, num_classes):
@@ -11,5 +12,6 @@ class ClassificationHead(nn.Module):
         )
 
     def forward(self, x):
+        print(np.array(x))
         x = self.fc(x)
         return x

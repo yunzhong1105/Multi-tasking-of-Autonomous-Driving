@@ -482,6 +482,16 @@ class CSPBepBackbone_P6(nn.Module):
     def forward(self, x):
 
         outputs = []
+        # print("===================== error here =====================")
+        # print(type(x))
+        # print(x.shape)
+        # print(x[0].shape)
+        # print(x[0])
+        # # print(x[1])
+        # print("===================== error here =====================")
+        
+        # assert False
+        
         x = self.stem(x)
         x = self.ERBlock_2(x)
         outputs.append(x)

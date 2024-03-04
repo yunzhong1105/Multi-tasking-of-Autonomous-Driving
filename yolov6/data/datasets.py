@@ -224,7 +224,7 @@ class TrainValDataset(Dataset):
 #             print('6',seg.max())
         if self.args.detonly == 'True' :
             labels_out = torch.zeros((len(labels), 6))
-            if len(labels):
+            if len (labels):
                 labels_out[:, 1:] = torch.from_numpy(labels)
         
         # 
@@ -243,8 +243,33 @@ class TrainValDataset(Dataset):
         if self.args.segonly == 'True' :
             seg = np.ascontiguousarray(seg)
             seg = torch.from_numpy(seg)
+
+        # print("#"*80)
+        # print("images : " , type(img) , img.shape)
+        # print(np.unique(img.numpy()))
+        # print("#"*80)
+        
+        # assert False
+
+        # if self.args.clsonly == "True" :
+        #     # np.where(img)
+            
+        #     print(np.where(img == 0))
+
+        #     assert False
+        
             
         img = torch.from_numpy(img)
+        
+        # print("#"*80)
+        # print("images : " , type(img) , img.shape)
+        # print(np.unique(img[0].numpy()))
+        # print("#"*80)
+        
+        # assert False
+
+        
+            
         
         
         return img, seg, labels_out, self.img_paths[index], shapes

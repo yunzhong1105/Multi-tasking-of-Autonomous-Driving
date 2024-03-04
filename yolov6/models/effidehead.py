@@ -41,6 +41,9 @@ class Detect(nn.Module):
         self.spp3 = PAPPM(768, 96, 256)
         self.seg_head = segmenthead(256, 128, 20) # self.seg_head = segmenthead(256, 128, 6)
 
+        # add cls branch
+        # self.cls_head = ClassificationHead(192 , self.nc)
+
         # Init decouple head
         self.stems = nn.ModuleList()
         self.cls_convs = nn.ModuleList()
@@ -82,18 +85,37 @@ class Detect(nn.Module):
                                                    requires_grad=False)
 
     def forward(self, x):
+        # det & seg : self.training == "True"
         if self.training:
             cls_score_list = []
             reg_distri_list = []
 #             print(self.nl)
+
+            # add clshead here
+            # try :
+            # for i in range(len(x)) :
+            #     print(type(x[i]) , "|" , x[i].shape)
+            # print(type(x) , len(x))
+            # assert False
+            # x2 = self.cls_head(x)
+                # print("x2 ok")
+            # except :
+            #     x2 = None   
+            #     print("x2 not ok") 
+            
             
             for i in range(self.nl):
                 if i==1:
-                    x1 = self.spp1(x[i])  
+                    x1 = self.spp1(x[i])
+                    print("spp1 : " , x1.shape)
                 elif i==2:
+                    print("spp2 : " , self.spp2(x[i]).shape)
                     x1 = x1 + F.interpolate(self.spp2(x[i]), scale_factor=2, mode='bilinear',align_corners=True)
+                    print("interpolate after spp2 : " , x1.shape)
                 elif i==3:
+                    print("spp2 : " , self.spp3(x[i]).shape)
                     x1 = x1 + F.interpolate(self.spp3(x[i]), scale_factor=4, mode='bilinear',align_corners=True)
+                    print("interpolate after spp3 : " , x1.shape)
                     
                 x[i] = self.stems[i](x[i])
 #                 print(x[i].shape)
@@ -115,7 +137,9 @@ class Detect(nn.Module):
             cls_score_list = torch.cat(cls_score_list, axis=1)
             reg_distri_list = torch.cat(reg_distri_list, axis=1)
 
-            return x, cls_score_list, reg_distri_list, x1
+            # return x, cls_score_list, reg_distri_list, x1
+            return x, cls_score_list, reg_distri_list, x1, x2
+        
         else:
             cls_score_list = []
             reg_dist_list = []
