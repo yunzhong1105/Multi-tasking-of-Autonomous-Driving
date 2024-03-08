@@ -72,8 +72,17 @@ class ComputeLoss:
         # assert 1 == 2
 
         self.args = args
-        feats, pred_scores, pred_distri, segmap = outputs
+        feats, pred_scores, pred_distri, segmap, cls_out = outputs
         
+        # print("@"*150)
+        # for num , item in enumerate(feats) :
+        #     print("feats {} : ".format(num) , "|" , item.shape)
+        # print("pred_scores : " , len(pred_scores) , "|" , pred_scores.shape)
+        # print("pred_distri : " , len(pred_distri) , "|" , pred_distri.shape)
+        # print("@"*150)
+
+        # assert False
+
         # print("segmap : ")
         # print(segmap.shape)
         # print(segmap)

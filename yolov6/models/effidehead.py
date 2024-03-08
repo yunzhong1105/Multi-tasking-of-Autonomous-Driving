@@ -42,7 +42,9 @@ class Detect(nn.Module):
         self.seg_head = segmenthead(256, 128, 20) # self.seg_head = segmenthead(256, 128, 6)
 
         # add cls branch
-        # self.cls_head = ClassificationHead(192 , self.nc)
+        self.cls1 = ClassificationHead(192 , self.nc)
+        self.cls2 = ClassificationHead(384 , self.nc)
+        self.cls3 = ClassificationHead(256 , self.nc)
 
         # Init decouple head
         self.stems = nn.ModuleList()
@@ -55,12 +57,34 @@ class Detect(nn.Module):
 
         # Efficient decoupled head layers
         for i in range(num_layers):
+            print("="*100)
             idx = i*5
+            print("idx : " , idx)
             self.stems.append(head_layers[idx])
+            print("*"*80)
+            print("head_layers[idx] : " , head_layers[idx])
             self.cls_convs.append(head_layers[idx+1])
+            print("*"*80)
+            print("head_layers[idx+1] : " , head_layers[idx+1])
             self.reg_convs.append(head_layers[idx+2])
+            print("*"*80)
+            print("head_layers[idx+2] : " , head_layers[idx+2])
             self.cls_preds.append(head_layers[idx+3])
+            print("*"*80)
+            print("head_layers[idx+3] : " , head_layers[idx+3])
             self.reg_preds.append(head_layers[idx+4])
+            print("*"*80)
+            print("head_layers[idx+4] : " , head_layers[idx+4])
+
+        # assert False
+
+        # print("="*100)
+        # print("view the detail of head_layers")
+        # print("num_layers : " , num_layers)
+        # print("head_layers : " , type(head_layers) , "|" , len(head_layers) , "|" , head_layers)
+
+        # print("="*100)
+        # assert False
 
     def initialize_biases(self):
 
@@ -105,17 +129,18 @@ class Detect(nn.Module):
             
             
             for i in range(self.nl):
+                print("shape of x[{}] : ".format(i) , x[i].shape)
                 if i==1:
                     x1 = self.spp1(x[i])
-                    print("spp1 : " , x1.shape)
+                    # print("spp1 : " , x1.shape)
                 elif i==2:
-                    print("spp2 : " , self.spp2(x[i]).shape)
+                    # print("spp2 : " , self.spp2(x[i]).shape)
                     x1 = x1 + F.interpolate(self.spp2(x[i]), scale_factor=2, mode='bilinear',align_corners=True)
-                    print("interpolate after spp2 : " , x1.shape)
+                    # print("interpolate after spp2 : " , x1.shape)
                 elif i==3:
-                    print("spp2 : " , self.spp3(x[i]).shape)
+                    # print("spp2 : " , self.spp3(x[i]).shape)
                     x1 = x1 + F.interpolate(self.spp3(x[i]), scale_factor=4, mode='bilinear',align_corners=True)
-                    print("interpolate after spp3 : " , x1.shape)
+                    # print("interpolate after spp3 : " , x1.shape)
                     
                 x[i] = self.stems[i](x[i])
 #                 print(x[i].shape)
@@ -126,16 +151,49 @@ class Detect(nn.Module):
                 reg_feat = self.reg_convs[i](reg_x)
                 reg_output = self.reg_preds[i](reg_feat)
 
+
                 cls_output = torch.sigmoid(cls_output)
                 cls_score_list.append(cls_output.flatten(2).permute((0, 2, 1)))
                 reg_distri_list.append(reg_output.flatten(2).permute((0, 2, 1)))
-                
+            
+
+            print("@"*150)
+            print("after for loop :")
+            for num , item in enumerate(cls_score_list) :
+                print("cls_score_list {} : ".format(num) , item.shape)
+            for num , item in enumerate(reg_distri_list) :
+                print("reg_distri_list {} : ".format(num) , item.shape)
+            # print("reg_distri_list : " , len(reg_distri_list) , "\n" , reg_distri_list)
+            print("@"*150)
+
+            # assert False
+
+            # print("="*100)
+            # print("view the detail of decouple head")
+            # print("self.stem : " , type(self.stems) , "|" , self.stems)
+            # print("self.cls_convs : " , type(self.cls_convs) , "|" , self.cls_convs)
+            # print("self.cls_preds : " , type(self.cls_preds) , "|" , self.cls_preds)
+            # print("self.reg_convs : " , type(self.reg_convs) , "|" , self.reg_convs)
+            # print("self.reg_preds : " , type(self.reg_preds) , "|" , self.reg_preds)
+
+            # print("="*100)
+            # assert False
             
 #             import pdb
 #             pdb.set_trace()
             x1 = self.seg_head(x1)
             cls_score_list = torch.cat(cls_score_list, axis=1)
             reg_distri_list = torch.cat(reg_distri_list, axis=1)
+
+            # print("after cat :")
+            # print("cls_score_list : " , cls_score_list.shape)
+            # print("cls_score_list[0][0] : " , cls_score_list[0][0])
+            # print("reg_distri_list : " , reg_distri_list.shape)
+            # print("@"*150)
+
+            # assert False
+
+            x2 = None
 
             # return x, cls_score_list, reg_distri_list, x1
             return x, cls_score_list, reg_distri_list, x1, x2
