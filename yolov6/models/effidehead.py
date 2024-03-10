@@ -57,24 +57,24 @@ class Detect(nn.Module):
 
         # Efficient decoupled head layers
         for i in range(num_layers):
-            print("="*100)
+            # print("="*100)
             idx = i*5
-            print("idx : " , idx)
+            # print("idx : " , idx)
             self.stems.append(head_layers[idx])
-            print("*"*80)
-            print("head_layers[idx] : " , head_layers[idx])
+            # print("*"*80)
+            # print("head_layers[idx] : " , head_layers[idx])
             self.cls_convs.append(head_layers[idx+1])
-            print("*"*80)
-            print("head_layers[idx+1] : " , head_layers[idx+1])
+            # print("*"*80)
+            # print("head_layers[idx+1] : " , head_layers[idx+1])
             self.reg_convs.append(head_layers[idx+2])
-            print("*"*80)
-            print("head_layers[idx+2] : " , head_layers[idx+2])
+            # print("*"*80)
+            # print("head_layers[idx+2] : " , head_layers[idx+2])
             self.cls_preds.append(head_layers[idx+3])
-            print("*"*80)
-            print("head_layers[idx+3] : " , head_layers[idx+3])
+            # print("*"*80)
+            # print("head_layers[idx+3] : " , head_layers[idx+3])
             self.reg_preds.append(head_layers[idx+4])
-            print("*"*80)
-            print("head_layers[idx+4] : " , head_layers[idx+4])
+            # print("*"*80)
+            # print("head_layers[idx+4] : " , head_layers[idx+4])
 
         # assert False
 
@@ -127,20 +127,33 @@ class Detect(nn.Module):
             #     x2 = None   
             #     print("x2 not ok") 
             
+            # [8, 96, 80, 80]
+            # [8, 192, 40, 40]
+            # [8, 384, 40, 40]
+            # [8, 768, 10, 10]
             
             for i in range(self.nl):
-                print("shape of x[{}] : ".format(i) , x[i].shape)
+                # print("shape of x[{}] : ".format(i) , x[i].shape)
                 if i==1:
+                    print("spp1 + x[{i}]  : " , self.spp1(x[i]).shape)
+                    print("x[{i}] : " , x[i].shape , "\n" , x[i])
                     x1 = self.spp1(x[i])
-                    # print("spp1 : " , x1.shape)
+                    print("x1 after spp1 : " , x1.shape , "\n" , x1)
+                    print("@"*80)
                 elif i==2:
-                    # print("spp2 : " , self.spp2(x[i]).shape)
+                    print("spp2 + x[{i}]  : " , self.spp2(x[i]).shape)
+                    print("x[{i}] : " , x[i].shape , "\n" , x[i])
+                    print("x1 before spp2 : " , x1.shape , "\n" , x1)
                     x1 = x1 + F.interpolate(self.spp2(x[i]), scale_factor=2, mode='bilinear',align_corners=True)
-                    # print("interpolate after spp2 : " , x1.shape)
+                    print("interpolate after spp2 : " , x1.shape , "\n" , x1)
+                    print("@"*80)
                 elif i==3:
-                    # print("spp2 : " , self.spp3(x[i]).shape)
+                    print("spp3 + x[{i}] : " , self.spp3(x[i]).shape)
+                    print("x[{i}] : " , x[i].shape , "\n" , x[i])
+                    print("x1 before spp3 : " , x1.shape , "\n" , x1)
                     x1 = x1 + F.interpolate(self.spp3(x[i]), scale_factor=4, mode='bilinear',align_corners=True)
-                    # print("interpolate after spp3 : " , x1.shape)
+                    print("interpolate after spp3 : " , x1.shape , "\n" , x1)
+                    print("@"*80)
                     
                 x[i] = self.stems[i](x[i])
 #                 print(x[i].shape)
@@ -156,6 +169,7 @@ class Detect(nn.Module):
                 cls_score_list.append(cls_output.flatten(2).permute((0, 2, 1)))
                 reg_distri_list.append(reg_output.flatten(2).permute((0, 2, 1)))
             
+            assert False
 
             print("@"*150)
             print("after for loop :")
