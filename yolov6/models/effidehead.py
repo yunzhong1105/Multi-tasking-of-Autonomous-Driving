@@ -129,31 +129,32 @@ class Detect(nn.Module):
             
             # [8, 96, 80, 80]
             # [8, 192, 40, 40]
-            # [8, 384, 40, 40]
+            # [8, 384, 40, 40]7654321
+            
             # [8, 768, 10, 10]
             
             for i in range(self.nl):
                 # print("shape of x[{}] : ".format(i) , x[i].shape)
                 if i==1:
-                    print("spp1 + x[{i}]  : " , self.spp1(x[i]).shape)
-                    print("x[{i}] : " , x[i].shape , "\n" , x[i])
+                    # print("spp1 + x[{i}]  : " , self.spp1(x[i]).shape)
+                    # print("x[{i}] : " , x[i].shape , "\n" , x[i])
                     x1 = self.spp1(x[i])
-                    print("x1 after spp1 : " , x1.shape , "\n" , x1)
-                    print("@"*80)
+                    # print("x1 after spp1 : " , x1.shape , "\n" , x1)
+                    # print("@"*80)
                 elif i==2:
-                    print("spp2 + x[{i}]  : " , self.spp2(x[i]).shape)
-                    print("x[{i}] : " , x[i].shape , "\n" , x[i])
-                    print("x1 before spp2 : " , x1.shape , "\n" , x1)
+                    # print("spp2 + x[{i}]  : " , self.spp2(x[i]).shape)
+                    # print("x[{i}] : " , x[i].shape , "\n" , x[i])
+                    # print("x1 before spp2 : " , x1.shape , "\n" , x1)
                     x1 = x1 + F.interpolate(self.spp2(x[i]), scale_factor=2, mode='bilinear',align_corners=True)
-                    print("interpolate after spp2 : " , x1.shape , "\n" , x1)
-                    print("@"*80)
+                    # print("interpolate after spp2 : " , x1.shape , "\n" , x1)
+                    # print("@"*80)
                 elif i==3:
-                    print("spp3 + x[{i}] : " , self.spp3(x[i]).shape)
-                    print("x[{i}] : " , x[i].shape , "\n" , x[i])
-                    print("x1 before spp3 : " , x1.shape , "\n" , x1)
+                    # print("spp3 + x[{i}] : " , self.spp3(x[i]).shape)
+                    # print("x[{i}] : " , x[i].shape , "\n" , x[i])
+                    # print("x1 before spp3 : " , x1.shape , "\n" , x1)
                     x1 = x1 + F.interpolate(self.spp3(x[i]), scale_factor=4, mode='bilinear',align_corners=True)
-                    print("interpolate after spp3 : " , x1.shape , "\n" , x1)
-                    print("@"*80)
+                    # print("interpolate after spp3 : " , x1.shape , "\n" , x1)
+                    # print("@"*80)
                     
                 x[i] = self.stems[i](x[i])
 #                 print(x[i].shape)
@@ -169,16 +170,16 @@ class Detect(nn.Module):
                 cls_score_list.append(cls_output.flatten(2).permute((0, 2, 1)))
                 reg_distri_list.append(reg_output.flatten(2).permute((0, 2, 1)))
             
-            assert False
+            # assert False
 
-            print("@"*150)
-            print("after for loop :")
-            for num , item in enumerate(cls_score_list) :
-                print("cls_score_list {} : ".format(num) , item.shape)
-            for num , item in enumerate(reg_distri_list) :
-                print("reg_distri_list {} : ".format(num) , item.shape)
+            # print("@"*150)
+            # print("after for loop :")
+            # for num , item in enumerate(cls_score_list) :
+            #     print("cls_score_list {} : ".format(num) , item.shape)
+            # for num , item in enumerate(reg_distri_list) :
+            #     print("reg_distri_list {} : ".format(num) , item.shape)
             # print("reg_distri_list : " , len(reg_distri_list) , "\n" , reg_distri_list)
-            print("@"*150)
+            # print("@"*150)
 
             # assert False
 

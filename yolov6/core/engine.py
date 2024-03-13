@@ -385,11 +385,11 @@ class Trainer:
                     # print(type(targets))
                     
                     # assert False
-                    print("="*100)
-                    print(type(preds) , "|" , len(preds) , preds)
-                    print("="*100)
+                    # print("="*100)
+                    # print(type(preds) , "|" , len(preds) , preds)
+                    # print("="*100)
                     
-                    assert False
+                    # assert False
                     
                     total_loss, loss_items = self.compute_loss(preds, seg, targets, epoch_num, step_num, self.args) # YOLOv6_af
                 if self.rank != -1:
