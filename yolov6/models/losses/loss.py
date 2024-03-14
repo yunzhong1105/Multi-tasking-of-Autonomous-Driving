@@ -245,8 +245,12 @@ class ComputeLoss:
 
         elif args.clsonly == 'True' :
             # cls_pred = 
-            losscls = self.cls_celoss("pred" , "gt")
-            loss_cls, loss_iou, loss_dfl = torch.zeros((losscls.shape)).to(device_id),torch.zeros((losscls.shape)).to(device_id),torch.zeros((losscls.shape)).to(device_id)
+            OH_lablel = F.one_hot(targets.long() , self.num_classes + 1)[..., :-1]
+            # losscls = self.cls_celoss("pred" , "gt")
+            losscls = self.cls_celoss(cls_out , OH_lablel.float())
+            device_id = losscls.get_device()
+            loss = losscls
+            loss_cls, loss_iou, loss_dfl, lossseg = torch.zeros((losscls.shape)).to(device_id),torch.zeros((losscls.shape)).to(device_id),torch.zeros((losscls.shape)).to(device_id),torch.zeros((losscls.shape)).to(device_id)
             # pass
 
        
