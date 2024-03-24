@@ -6,7 +6,7 @@ from yolov6.layers.common import *
 from yolov6.assigners.anchor_generator import generate_anchors
 from yolov6.utils.general import dist2bbox
 from yolov6.models.seghead import BasicBlock, Bottleneck, segmenthead, DAPPM, PAPPM, PagFM, Bag, Light_Bag
-from yolov6.models.clshead import ClassificationHead , ClsHead , ClsConv
+from yolov6.models.clshead import ClassificationHead , ClsHead , ClsConv , ClassificationModel
 
 from yolov6.models.clshead import ClassificationHead
 
@@ -47,10 +47,17 @@ class Detect(nn.Module):
         # self.cls2 = ClassificationHead(384 , self.nc)
         # self.cls3 = ClassificationHead(256 , self.nc)
 
+        # use ClsConv as cls head
         self.cc1 = ClsConv(in_channels = 192 , num_classes = self.nc)
         self.cc2 = ClsConv(in_channels = 384 , num_classes = self.nc)
         self.cc3 = ClsConv(in_channels = 768 , num_classes = self.nc)
         self.cc_pred = ClsConv(L_channels = 10816 , make_prediction = True)
+        
+        # use ClassificationModel as cls head
+        self.cm1 = ClassificationModel(in_channels = 192 , num_classes = self.nc)
+        self.cm2 = ClassificationModel(in_channels = 384 , num_classes = self.nc)
+        self.cm3 = ClassificationModel(in_channels = 768 , num_classes = self.nc)
+        self.cm_pred = ClassificationModel(num_classes = self.nc , L_channels = 102400 , make_prediction = True)
 
         # Init decouple head
         self.stems = nn.ModuleList()
@@ -145,7 +152,8 @@ class Detect(nn.Module):
                     # print("spp1 + x[{i}]  : " , self.spp1(x[i]).shape)
                     # print("x[{i}] : " , x[i].shape , "\n" , x[i])
                     x1 = self.spp1(x[i])
-                    x2 = self.cc1(x[i])
+                    # x2 = self.cc1(x[i])
+                    x2 = self.cm1(x[i])
                     # print("x1 after spp1 : " , x1.shape , "\n" , x1)
                     # print("@"*80)
                 elif i==2:
@@ -153,7 +161,8 @@ class Detect(nn.Module):
                     # print("x[{i}] : " , x[i].shape , "\n" , x[i])
                     # print("x1 before spp2 : " , x1.shape , "\n" , x1)
                     x1 = x1 + F.interpolate(self.spp2(x[i]), scale_factor=2, mode='bilinear',align_corners=True)
-                    x2 += F.interpolate(self.cc2(x[i]) , scale_factor = 13/6 , mode = "bilinear" , align_corners = True)
+                    # x2 += F.interpolate(self.cc2(x[i]) , scale_factor = 13/6 , mode = "bilinear" , align_corners = True)
+                    x2 += F.interpolate(self.cm2(x[i]) , scale_factor = 2 , mode = "bilinear" , align_corners = True)
                     # print("interpolate after spp2 : " , x1.shape , "\n" , x1)
                     # print("@"*80)
                 elif i==3:
@@ -161,7 +170,8 @@ class Detect(nn.Module):
                     # print("x[{i}] : " , x[i].shape , "\n" , x[i])
                     # print("x1 before spp3 : " , x1.shape , "\n" , x1)
                     x1 = x1 + F.interpolate(self.spp3(x[i]), scale_factor=4, mode='bilinear',align_corners=True)
-                    x2 += F.interpolate(self.cc3(x[i]) , scale_factor = 13/3 , mode = "bilinear" , align_corners = True)
+                    # x2 += F.interpolate(self.cc3(x[i]) , scale_factor = 13/3 , mode = "bilinear" , align_corners = True)
+                    x2 += F.interpolate(self.cm3(x[i]) , scale_factor = 4 , mode = "bilinear" , align_corners = True)
                     # print("interpolate after spp3 : " , x1.shape , "\n" , x1)
                     # print("@"*80)
                     
@@ -206,7 +216,8 @@ class Detect(nn.Module):
 #             import pdb
 #             pdb.set_trace()
             x1 = self.seg_head(x1)
-            x2 = self.cc_pred(x2)
+            # x2 = self.cc_pred(x2)
+            x2 = self.cm_pred(x2)
             cls_score_list = torch.cat(cls_score_list, axis=1)
             reg_distri_list = torch.cat(reg_distri_list, axis=1)
 

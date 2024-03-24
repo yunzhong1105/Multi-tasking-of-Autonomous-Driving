@@ -41,6 +41,7 @@ def get_args_parser(add_help=True):
     parser.add_argument('--save-seg', action='store_true', help='whether to use FP16 half-precision inference.')
     parser.add_argument('--segonly', type=str,default="False", help='resume the most recent training')
     parser.add_argument('--detonly', type=str,default="False", help='resume the most recent training')
+    parser.add_argument('--clsonly', type=str,default="False", help='resume the most recent training')
 
     args = parser.parse_args()
     LOGGER.info(args)
@@ -72,6 +73,7 @@ def run(weights=osp.join(ROOT, 'yolov6s.pt'),
         half=False,
         segonly='False',
         detonly='False',
+        clsonly='False',
         ):
     """ Inference process, supporting inference on one image file or directory which containing images.
     Args:

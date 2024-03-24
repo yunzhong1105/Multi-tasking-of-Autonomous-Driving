@@ -104,3 +104,78 @@ class ClsConv(nn.Module):
 # output_2 = head_2(feature_2)
 # output_3 = head_3(feature_3)
 
+
+
+class ClassificationModel(nn.Module) :
+    def __init__(self , in_channels = 192 , num_classes = 50 , L_channels = None , make_prediction = False) :
+        # x = identity_block(bottleneck, 3, [256, 256, 1024], stage=4, block='d')
+	    # x = identity_block(x, 3, [256, 256, 1024], stage=4, block='e')
+	    # x = identity_block(x, 3, [256, 256, 1024], stage=4, block='f')
+
+        # x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a')
+        # x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b')
+        # x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c')
+        '''
+        x = IdentityBlock()
+        x = 
+        '''
+        super(ClassificationModel , self).__init__()
+        self.idblock = IdentityBlock(in_channels)
+        self.avgpool = nn.AvgPool2d(2 , stride = 2)
+        self.dropout = nn.Dropout(p = 0.3)
+        self.make_prediction = make_prediction
+        
+        if self.make_prediction :
+            self.linear = nn.Linear(L_channels , num_classes) # in_channels = 32 x 224 x 224
+            self.softmax = nn.Softmax(dim = 1)
+    
+    def forward(self , x) :
+        if not self.make_prediction :
+            x = self.idblock(x)
+            x = self.avgpool(x)
+            x = self.dropout(x)
+        else :
+            x = torch.flatten(x , 1)
+            x = self.linear(x)
+            x = self.softmax(x)
+        
+        return x
+        
+
+class IdentityBlock(nn.Module) :
+    def __init__(self , in_channels) :
+        super(IdentityBlock , self).__init__()
+
+        self.conv1 = nn.Conv2d(in_channels , 128 , kernel_size = (3 , 3) , padding = 1)
+        self.bn1 = nn.BatchNorm2d(128 , affine = True)
+        self.relu1 = nn.ReLU(inplace = True)
+        
+        self.conv2 = nn.Conv2d(128 , 128 , kernel_size = (3 , 3) , padding = 1)
+        self.bn2 = nn.BatchNorm2d(128 , affine = True)
+        self.relu2 = nn.ReLU(inplace = True)
+        
+        self.conv3 = nn.Conv2d(128 , 256 , kernel_size = (3 , 3) , padding = 1)
+        self.bn3 = nn.BatchNorm2d(256 , affine = True)
+        self.dropout = nn.Dropout(p = 0.2) # only for training
+        self.relu3 = nn.ReLU(inplace = True)
+        
+    
+    def forward(self , x) :
+        x = self.relu1(self.bn1(self.conv1(x)))
+        x = self.relu2(self.bn2(self.conv2(x)))
+        out = self.relu3(self.dropout(self.bn3(self.conv3(x))))
+        
+        # x = self.conv1(x)
+        # x = self.bn1(x)
+        # x = self.relu1(x)
+        
+        # x = self.conv2(x)
+        # x = self.bn2(x)
+        # x = self.relu2(x)
+        
+        # x = self.conv3(x)
+        # x = self.bn3(x)
+        # x = self.dropout(x)
+        # out = self.relu3(x)
+        
+        return out

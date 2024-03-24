@@ -32,6 +32,11 @@ class Model(nn.Module):
     def forward(self, x):
         export_mode = torch.onnx.is_in_onnx_export()
         x = self.backbone(x)
+        # print("#"*100)
+        # for item in x :
+        #     print(item.shape)
+        # print("#"*100)
+        # assert False
         x = self.neck(x)
         if export_mode == False:
             featmaps = []

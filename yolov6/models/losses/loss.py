@@ -256,7 +256,7 @@ class ComputeLoss:
        
         ret_loss = torch.cat(((self.loss_weight['iou'] * loss_iou).unsqueeze(0), 
                          (self.loss_weight['dfl'] * loss_dfl).unsqueeze(0),
-                         (self.loss_weight['class'] * loss_cls).unsqueeze(0), lossseg.unsqueeze(0))).detach()
+                         (self.loss_weight['class'] * loss_cls).unsqueeze(0), lossseg.unsqueeze(0) , losscls.unsqueeze(0))).detach()
         
         return loss, ret_loss
             

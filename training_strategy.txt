@@ -9,3 +9,5 @@ exp20   500    32          multi       0,1,2                                    
 exp21   500    32          multi       0,1,2                                                img size 640, 2 gpu, train_multi.sh (1)
 exp43   500    8           det         0                                                    img size 640, 1 gpu, wandb , 50 epoch
 exp47   500    8           seg         0                                                    img size 640, 1 gpu, wandb , 50 epoch
+exp88   1000   32          cls         0                                                    img size 640, 1000 epoch loss: 4.776
+exp106  7      8           cls         0                                                    recording lr schduler

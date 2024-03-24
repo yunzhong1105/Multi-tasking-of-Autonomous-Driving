@@ -253,8 +253,8 @@ class Trainer:
         # set color for classnames
         self.color = [tuple(np.random.choice(range(256), size=3)) for _ in range(self.model.nc)]
         
-        self.loss_num = 4
-        self.loss_info = ['Epoch', 'iou_loss', 'dfl_loss', 'cls_loss','seg-loss']
+        self.loss_num = 5 # self.loss_num = 4
+        self.loss_info = ['Epoch', 'iou_loss', 'dfl_loss', 'cls_loss', 'seg_loss', 'CLS_loss']
         if self.args.distill:
             self.loss_num += 1
             self.loss_info += ['cwd_loss']
@@ -402,6 +402,8 @@ class Trainer:
             # print(self.optimizer.param_groups[2]['params'])
             # print("#"*80)
             # print(self.optimizer.param_groups[2]['lr'])
+            # with open("lr_process.txt" , "a") as f :
+            #     f.write(f"{str(np.round(self.optimizer.param_groups[2]['lr'] , 4))}\n")
             # print("#"*80)
             
     
@@ -567,6 +569,11 @@ class Trainer:
         self.mean_loss = torch.zeros(self.loss_num, device=self.device)
         self.optimizer.zero_grad()
 
+        # print("="*80)
+        # print(*self.loss_info)
+        # print("="*80)
+        # print(self.loss_num + 1)
+        # print("="*80)
         LOGGER.info(('\n' + '%10s' * (self.loss_num + 1)) % (*self.loss_info,))
         self.pbar = enumerate(self.train_loader)
         if self.main_process:
@@ -576,6 +583,13 @@ class Trainer:
     def print_details(self):
         # print(self.optimizer.param_groups[2]['lr'])
         if self.main_process:
+            # print()
+            # print("="*100)
+            # print(type(self.mean_loss) , "|" , self.mean_loss.shape)
+            # print(type(self.step) , "|" , self.step)
+            # print(type(self.loss_items) , "|" , self.loss_items.shape)
+            # print("="*100)
+            # assert False
             self.mean_loss = (self.mean_loss * self.step + self.loss_items) / (self.step + 1)
             # self.pbar.set_description(('%10s' + '%10.4g' * self.loss_num + '%10.4g') % (f'{self.epoch}/{self.max_epoch - 1}', \
             #                                                     *(self.mean_loss) , self.optimizer.param_groups[2]['lr'])) # self.scheduler.get_last_lr()[0]
